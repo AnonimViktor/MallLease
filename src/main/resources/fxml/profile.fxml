@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.malllease.controller.ProfileController"
+            fitToWidth="true" hbarPolicy="NEVER" styleClass="profile-scroll">
+    <content>
+        <VBox spacing="18" styleClass="profile-screen">
+            <HBox spacing="16" alignment="CENTER_LEFT" styleClass="profile-hero">
+                <Label fx:id="avatarLabel" text="АК" styleClass="profile-avatar"/>
+                <VBox spacing="4">
+                    <Label fx:id="profileNameLabel" text="Профиль пользователя" styleClass="profile-title"/>
+                    <Label fx:id="profileRoleLabel" text="Роль" styleClass="profile-subtitle"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="profileStatusLabel" text="Готово" styleClass="profile-status"/>
+                <Button text="Выйти" styleClass="btn-secondary, profile-logout-button"
+                        onAction="#handleLogout"/>
+            </HBox>
+
+            <FlowPane hgap="18" vgap="18" styleClass="profile-grid">
+                <VBox spacing="14" styleClass="profile-card" prefWidth="520">
+                    <VBox spacing="4">
+                        <Label text="Учетная запись" styleClass="heading-3"/>
+                        <Label text="Данные, которые используются для входа и связи с пользователем."
+                               styleClass="text-secondary" wrapText="true"/>
+                    </VBox>
+
+                    <FlowPane hgap="12" vgap="12">
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="ФИО" styleClass="field-label"/>
+                            <TextField fx:id="fullNameField" promptText="ФИО"/>
+                        </VBox>
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="Логин" styleClass="field-label"/>
+                            <TextField fx:id="loginField" promptText="login"/>
+                        </VBox>
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="Email" styleClass="field-label"/>
+                            <TextField fx:id="emailField" promptText="email@example.com"/>
+                        </VBox>
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="Телефон" styleClass="field-label"/>
+                            <TextField fx:id="phoneField" promptText="+7..."/>
+                        </VBox>
+                    </FlowPane>
+
+                    <Button text="Сохранить" onAction="#handleSaveProfile"
+                            styleClass="btn-primary" maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox fx:id="clientCard" spacing="14" styleClass="profile-card" prefWidth="520"
+                      visible="false" managed="false">
+                    <VBox spacing="4">
+                        <Label text="Профиль клиента" styleClass="heading-3"/>
+                        <Label text="Реквизиты арендатора для договоров, показов и платежных документов."
+                               styleClass="text-secondary" wrapText="true"/>
+                    </VBox>
+
+                    <FlowPane hgap="12" vgap="12">
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="Компания" styleClass="field-label"/>
+                            <TextField fx:id="companyField" promptText="ООО «Компания»"/>
+                        </VBox>
+                        <VBox spacing="7" prefWidth="500">
+                            <Label text="Юридический адрес" styleClass="field-label"/>
+                            <TextField fx:id="legalAddressField" promptText="Адрес компании"/>
+                        </VBox>
+                        <VBox spacing="7" prefWidth="500">
+                            <Label text="Реквизиты" styleClass="field-label"/>
+                            <TextField fx:id="bankDetailsField" promptText="ИНН, расчетный счет, банк"/>
+                        </VBox>
+                    </FlowPane>
+                    <Button text="Сохранить реквизиты" onAction="#handleSaveProfile"
+                            styleClass="btn-secondary" maxWidth="Infinity"/>
+                </VBox>
+
+                <VBox spacing="14" styleClass="profile-card" prefWidth="520">
+                    <VBox spacing="4">
+                        <Label text="Безопасность" styleClass="heading-3"/>
+                        <Label text="Оставьте поля пустыми, если пароль менять не нужно."
+                               styleClass="text-secondary" wrapText="true"/>
+                    </VBox>
+
+                    <FlowPane hgap="12" vgap="12">
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="Новый пароль" styleClass="field-label"/>
+                            <PasswordField fx:id="newPasswordField" promptText="Aa123456!"/>
+                        </VBox>
+                        <VBox spacing="7" prefWidth="240">
+                            <Label text="Повтор пароля" styleClass="field-label"/>
+                            <PasswordField fx:id="repeatPasswordField" promptText="Повторите пароль"/>
+                        </VBox>
+                    </FlowPane>
+
+                    <Label fx:id="passwordHintLabel"
+                           text="Минимум 8 символов, заглавная буква, строчная буква, цифра и спецсимвол."
+                           styleClass="auth-hint" wrapText="true"/>
+                    <Button text="Обновить пароль" onAction="#handleSavePassword"
+                            styleClass="btn-secondary" maxWidth="Infinity"/>
+                </VBox>
+            </FlowPane>
+        </VBox>
+    </content>
+</ScrollPane>
