@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.malllease.controller.MainController"
+            prefWidth="1440" prefHeight="900" stylesheets="@../css/styles.css"
+            styleClass="app-shell">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="248" minWidth="220" spacing="0">
+
+            <!-- Brand -->
+            <HBox fx:id="brandRow" styleClass="sidebar-brand" spacing="10" alignment="CENTER_LEFT">
+                <Label text="M" styleClass="brand-mark"/>
+                <VBox fx:id="brandLabels" spacing="1">
+                    <Label text="MallLease" styleClass="brand-title"/>
+                    <Label text="Управление арендой" styleClass="brand-subtitle"/>
+                </VBox>
+            </HBox>
+
+            <!-- Navigation -->
+            <ScrollPane fx:id="navScroll" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        styleClass="sidebar-nav-scroll" VBox.vgrow="ALWAYS">
+                <content>
+                    <VBox fx:id="navContainer" spacing="6" styleClass="sidebar-nav">
+                        <Button fx:id="navMap" styleClass="sidebar-nav-item"
+                                onAction="#handleNavMap" maxWidth="Infinity"/>
+                        <Button fx:id="navClients" styleClass="sidebar-nav-item"
+                                onAction="#handleNavClients" maxWidth="Infinity"/>
+                        <Button fx:id="navShowings" styleClass="sidebar-nav-item"
+                                onAction="#handleNavShowings" maxWidth="Infinity"/>
+                        <Button fx:id="navContracts" styleClass="sidebar-nav-item"
+                                onAction="#handleNavContracts" maxWidth="Infinity"/>
+                        <Button fx:id="navPayments" styleClass="sidebar-nav-item"
+                                onAction="#handleNavPayments" maxWidth="Infinity"/>
+                        <Button fx:id="navAdmin" styleClass="sidebar-nav-item"
+                                onAction="#handleNavAdmin" maxWidth="Infinity"/>
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+            <!-- Toggle row at bottom (Notion-style) -->
+            <HBox fx:id="toggleRow" styleClass="sidebar-toggle-row" alignment="CENTER_RIGHT">
+                <Button fx:id="collapseToggle" styleClass="sidebar-collapse-button"
+                        onAction="#handleToggleSidebar"/>
+            </HBox>
+
+            <!-- User card -->
+            <VBox styleClass="sidebar-user-card" spacing="2">
+                <HBox fx:id="sidebarUserProfile" spacing="10" alignment="CENTER_LEFT"
+                      styleClass="sidebar-user-profile" onMouseClicked="#handleNavProfile">
+                    <Label fx:id="userAvatarLabel" text="АК" styleClass="sidebar-avatar"/>
+                    <VBox fx:id="userTextBox" spacing="1">
+                        <Label fx:id="userNameLabel" text="Системный Администратор" styleClass="sidebar-user-name"/>
+                        <Label fx:id="userChip" styleClass="sidebar-user-role" text="Admin"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Main content area -->
+    <center>
+        <VBox styleClass="workspace">
+            <HBox fx:id="headerBar" styleClass="header" alignment="CENTER_LEFT" spacing="16">
+                <Label fx:id="pageTitle" text="Карта торговых центров" styleClass="heading-2"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS" styleClass="content-pane">
+                <Label text="Загрузка..." styleClass="text-muted"/>
+            </StackPane>
+        </VBox>
+    </center>
+</BorderPane>
