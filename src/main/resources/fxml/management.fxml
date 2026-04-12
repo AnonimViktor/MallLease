@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.malllease.controller.ManagementController"
+            styleClass="management-shell">
+
+    <top>
+        <VBox spacing="10">
+            <HBox spacing="9" alignment="CENTER_LEFT" styleClass="management-toolbar">
+                <ComboBox fx:id="sectionComboBox" prefWidth="210"/>
+                <TextField fx:id="tableSearchField" promptText="Поиск по таблице..." prefWidth="210"
+                           HBox.hgrow="ALWAYS" styleClass="management-search"/>
+                <ComboBox fx:id="tableFilterComboBox" prefWidth="160"/>
+                <Button text="Сброс" onAction="#handleResetTableFilters" styleClass="btn-secondary"/>
+                <Region prefWidth="8"/>
+                <Button fx:id="newButton" text="+ Новая" onAction="#handleNew" styleClass="btn-primary"/>
+                <Button text="Обновить" onAction="#handleRefresh" styleClass="btn-secondary"/>
+            </HBox>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label fx:id="statusLabel" text="Готово" styleClass="text-muted"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="filteredCountLabel" text="" styleClass="filter-result-label"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="dataTable" styleClass="management-table" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets right="16"/>
+            </BorderPane.margin>
+        </TableView>
+    </center>
+
+    <right>
+        <VBox styleClass="management-form" spacing="0" prefWidth="396" minWidth="350">
+            <VBox spacing="3">
+                <Label fx:id="formTitleLabel" text="Форма" styleClass="heading-3"/>
+                <Label fx:id="formSubtitleLabel" text="Выберите строку для редактирования или создайте новую"
+                       styleClass="form-subtitle" wrapText="true"/>
+            </VBox>
+
+            <ScrollPane fx:id="formScrollPane" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS"
+                        styleClass="form-scroll">
+                <GridPane fx:id="formGrid" hgap="10" vgap="12">
+                    <padding>
+                        <Insets top="16" right="2" bottom="8" left="2"/>
+                    </padding>
+                </GridPane>
+            </ScrollPane>
+
+            <Separator styleClass="form-divider"/>
+
+            <VBox spacing="10" styleClass="form-actions">
+                <HBox fx:id="openOnMapRow" spacing="10" alignment="CENTER_LEFT" managed="false" visible="false"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="deleteButton" text="Удалить" onAction="#handleDelete" styleClass="btn-danger"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="saveButton" text="Сохранить" onAction="#handleSave"
+                            styleClass="btn-primary" minWidth="130"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </right>
+</BorderPane>
