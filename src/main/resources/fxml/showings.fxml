@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.malllease.controller.ShowingsController"
+            styleClass="showings-screen">
+
+    <top>
+        <VBox spacing="12" styleClass="showings-header">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Поиск по клиенту, точке или комментарию"
+                           prefWidth="360" styleClass="showings-search"/>
+                <ComboBox fx:id="statusFilterBox" prefWidth="180"/>
+                <DatePicker fx:id="dateFilterPicker" prefWidth="160" promptText="Дата показа"/>
+                <Button text="Сегодня" onAction="#handleTodayFilter" styleClass="btn-secondary"/>
+                <Button text="Сбросить" onAction="#handleResetFilters" styleClass="btn-secondary"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Обновить" onAction="#handleRefresh" styleClass="btn-primary"/>
+            </HBox>
+
+            <HBox spacing="12" styleClass="showing-stats-row">
+                <VBox fx:id="statRequested" styleClass="showing-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleFilterRequested">
+                    <Label text="Запрошено" styleClass="metric-caption"/>
+                    <Label fx:id="requestedCountLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+                <VBox fx:id="statToday" styleClass="showing-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleFilterTodayCard">
+                    <Label text="Сегодня" styleClass="metric-caption"/>
+                    <Label fx:id="todayCountLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+                <VBox fx:id="statInterested" styleClass="showing-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleFilterInterested">
+                    <Label text="Интерес есть" styleClass="metric-caption"/>
+                    <Label fx:id="interestedCountLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+                <VBox fx:id="statSigned" styleClass="showing-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleFilterSigned">
+                    <Label text="Закрыто договором" styleClass="metric-caption"/>
+                    <Label fx:id="signedCountLabel" text="0" styleClass="metric-value"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="16" styleClass="showings-workspace">
+            <VBox spacing="10" prefWidth="430" minWidth="360" styleClass="showings-queue">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Очередь показов" styleClass="heading-3"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="queueCountLabel" text="0" styleClass="point-count-badge"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="showing-list-scroll"
+                            VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="showingListBox" spacing="8"/>
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="showing-detail-scroll"
+                        HBox.hgrow="ALWAYS">
+                <content>
+            <VBox fx:id="detailPanel" spacing="18" styleClass="showing-detail-panel">
+                <!-- ===== Header: title + read-only status pill ===== -->
+                <HBox alignment="CENTER_LEFT" spacing="10" styleClass="showing-detail-header">
+                    <VBox spacing="2">
+                        <Label text="Карточка показа" styleClass="inspector-title"/>
+                        <Label fx:id="detailSubtitleLabel" text="Выберите показ в очереди"
+                               styleClass="text-secondary"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="detailStatusBadge" text="—" styleClass="status-selected"/>
+                </HBox>
+
+                <Label fx:id="detailEmptyLabel"
+                       text="Здесь появятся данные клиента, выбранные торговые точки, слот времени и действия менеджера."
+                       styleClass="inspector-empty" wrapText="true"/>
+
+                <VBox fx:id="detailContentBox" spacing="14" visible="false" managed="false">
+
+                    <!-- ===== Step 1 — Клиент и точка (read-only summary) ===== -->
+                    <VBox styleClass="showing-step" spacing="10">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="1" styleClass="step-number"/>
+                            <Label text="Кому показываем" styleClass="step-title"/>
+                        </HBox>
+                        <HBox spacing="12">
+                            <VBox styleClass="showing-info-card" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label text="Клиент" styleClass="step-caption"/>
+                                <Label fx:id="clientNameLabel" text="—" styleClass="showing-info-value"/>
+                                <Label fx:id="contactLabel" text="—" styleClass="text-secondary"/>
+                            </VBox>
+                            <VBox styleClass="showing-info-card" spacing="3" HBox.hgrow="ALWAYS">
+                                <Label text="Торговые точки" styleClass="step-caption"/>
+                                <Label fx:id="pointsLabel" text="—" styleClass="showing-info-value"/>
+                                <Label fx:id="locationLabel" text="—" styleClass="text-secondary" wrapText="true"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ===== Step 2 — Когда показываем ===== -->
+                    <VBox styleClass="showing-step" spacing="10">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="2" styleClass="step-number"/>
+                            <Label text="Когда показываем" styleClass="step-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="slotStateLabel" text="" styleClass="slot-hint-inline"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <VBox spacing="4">
+                                <Label text="Дата" styleClass="step-caption"/>
+                                <DatePicker fx:id="editDatePicker" prefWidth="170"/>
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label text="Время" styleClass="step-caption"/>
+                                <ComboBox fx:id="editTimeBox" prefWidth="150" promptText="—"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- ===== Step 3 — Итог встречи ===== -->
+                    <VBox styleClass="showing-step" spacing="10">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="3" styleClass="step-number"/>
+                            <Label text="Итог встречи" styleClass="step-title"/>
+                        </HBox>
+                        <VBox spacing="6">
+                            <Label text="Статус показа" styleClass="step-caption"/>
+                            <ComboBox fx:id="resultComboBox" maxWidth="Infinity"/>
+                        </VBox>
+                        <VBox spacing="6" VBox.vgrow="ALWAYS">
+                            <Label text="Комментарий менеджера" styleClass="step-caption"/>
+                            <TextArea fx:id="managerCommentArea" prefRowCount="4" wrapText="true"
+                                      promptText="Например: клиент заинтересован в точке A-201, нужна ставка на 6 месяцев."/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- ===== Step 4 — Договор аренды ===== -->
+                    <VBox styleClass="showing-step, showing-step-contract" spacing="10">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="4" styleClass="step-number"/>
+                            <Label text="Договор аренды" styleClass="step-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="contractHintLabel" text="Выберите период аренды"
+                                   styleClass="text-secondary" wrapText="true"/>
+                        </HBox>
+                        <FlowPane hgap="12" vgap="10" alignment="CENTER_LEFT">
+                            <VBox spacing="4">
+                                <Label text="Начало периода" styleClass="step-caption"/>
+                                <DatePicker fx:id="contractFromPicker" prefWidth="170"/>
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label text="Окончание периода" styleClass="step-caption"/>
+                                <DatePicker fx:id="contractToPicker" prefWidth="170"/>
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label text=" " styleClass="step-caption"/>
+                                <Button fx:id="createContractButton" text="Заключить договор"
+                                        onAction="#handleCreateContract" styleClass="btn-primary"/>
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label text=" " styleClass="step-caption"/>
+                                <Button fx:id="terminateContractButton" text="Расторгнуть договор"
+                                        onAction="#handleTerminateContract" styleClass="btn-danger"
+                                        visible="false" managed="false"/>
+                            </VBox>
+                        </FlowPane>
+                    </VBox>
+
+                    <!-- ===== Footer: single save action ===== -->
+                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="showing-footer">
+                        <Label fx:id="actionStatusLabel" text="" styleClass="profile-status"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Сохранить изменения" onAction="#handleSave"
+                                styleClass="btn-primary" minWidth="180"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+                </content>
+            </ScrollPane>
+        </HBox>
+    </center>
+</BorderPane>
