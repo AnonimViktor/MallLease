@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.malllease.controller.ClientContractsController"
+      spacing="16" styleClass="client-contracts-screen">
+
+    <!-- Top summary strip -->
+    <HBox spacing="14" styleClass="client-contracts-summary">
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" spacing="4">
+            <Label text="Активных договоров" styleClass="metric-caption"/>
+            <Label fx:id="activeCountLabel" text="0" styleClass="metric-value"/>
+        </VBox>
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" spacing="4">
+            <Label text="Точек в аренде" styleClass="metric-caption"/>
+            <Label fx:id="pointCountLabel" text="0" styleClass="metric-value"/>
+        </VBox>
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" spacing="4">
+            <Label text="Оплачено по всем договорам" styleClass="metric-caption"/>
+            <Label fx:id="paidTotalLabel" text="0 ₽" styleClass="metric-value"/>
+        </VBox>
+        <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" spacing="4">
+            <Label text="Полная стоимость аренды" styleClass="metric-caption"/>
+            <Label fx:id="expectedTotalLabel" text="0 ₽" styleClass="metric-value"/>
+        </VBox>
+    </HBox>
+
+    <!-- Scrolling list of contract cards -->
+    <ScrollPane fx:id="contractsScroll" fitToWidth="true" hbarPolicy="NEVER"
+                styleClass="client-contracts-scroll" VBox.vgrow="ALWAYS">
+        <content>
+            <VBox fx:id="contractsBox" spacing="14" styleClass="client-contracts-list"/>
+        </content>
+    </ScrollPane>
+
+    <Label fx:id="emptyLabel" text="У вас пока нет заключённых договоров."
+           styleClass="inspector-empty" visible="false" managed="false"/>
+</VBox>
