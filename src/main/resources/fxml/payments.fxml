@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.malllease.controller.PaymentsController"
+            styleClass="payments-screen">
+
+    <top>
+        <VBox spacing="12" styleClass="payments-header">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Поиск по клиенту, договору или точке"
+                           prefWidth="360" styleClass="showings-search"/>
+                <ComboBox fx:id="paymentFilterBox" prefWidth="170"/>
+                <Button text="Сбросить" onAction="#handleResetFilters" styleClass="btn-secondary"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Обновить" onAction="#handleRefresh" styleClass="btn-primary"/>
+            </HBox>
+
+            <HBox spacing="12" styleClass="payment-stats-row">
+                <VBox fx:id="statAll" styleClass="payment-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleStatAll">
+                    <Label text="Активных точек" styleClass="metric-caption"/>
+                    <Label fx:id="contractsCountLabel" text="0" styleClass="metric-value"/>
+                    <Label text="всего договоров" styleClass="metric-subtitle"/>
+                </VBox>
+                <VBox fx:id="statDue" styleClass="payment-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleStatDue">
+                    <Label text="К оплате" styleClass="metric-caption"/>
+                    <Label fx:id="dueCountLabel" text="0" styleClass="metric-value"/>
+                    <Label text="требуют оплаты" styleClass="metric-subtitle"/>
+                </VBox>
+                <VBox fx:id="statDueAmount" styleClass="payment-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleStatDue">
+                    <Label text="Сумма к оплате" styleClass="metric-caption"/>
+                    <Label fx:id="dueAmountLabel" text="0 ₽" styleClass="metric-value"/>
+                    <Label text="накопленный долг" styleClass="metric-subtitle"/>
+                </VBox>
+                <VBox fx:id="statPaid" styleClass="payment-stat-card, stat-card-clickable" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#handleStatPaid">
+                    <Label text="Уже оплачено" styleClass="metric-caption"/>
+                    <Label fx:id="paidAmountLabel" text="0 ₽" styleClass="metric-value"/>
+                    <Label text="суммарно по точкам" styleClass="metric-subtitle"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="16" styleClass="payments-workspace">
+            <VBox spacing="10" prefWidth="430" minWidth="360" styleClass="payments-list-panel">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Договоры и точки" styleClass="heading-3"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="listCountLabel" text="0" styleClass="point-count-badge"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="payment-list-scroll"
+                            VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="paymentListBox" spacing="8"/>
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="payment-detail-scroll"
+                        HBox.hgrow="ALWAYS">
+                <content>
+                    <VBox spacing="16" styleClass="payment-detail-panel">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <VBox spacing="4">
+                                <Label text="Карточка платежа" styleClass="inspector-title"/>
+                                <Label fx:id="detailSubtitleLabel" text="Выберите договор слева"
+                                       styleClass="text-secondary"/>
+                            </VBox>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="detailStatusBadge" text="—" styleClass="status-selected"/>
+                        </HBox>
+
+                        <Label fx:id="detailEmptyLabel"
+                               text="Здесь появится следующий период к оплате, история платежей и действие для клиента или менеджера."
+                               styleClass="inspector-empty" wrapText="true"/>
+
+                        <VBox fx:id="detailContentBox" spacing="14" visible="false" managed="false">
+
+                            <!-- Summary cards: contract, point, rate, paid-so-far -->
+                            <HBox spacing="12">
+                                <VBox styleClass="payment-info-card" spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Договор" styleClass="metric-caption"/>
+                                    <Label fx:id="contractNoLabel" text="—" styleClass="payment-info-value"/>
+                                    <Label fx:id="companyNameLabel" text="—" styleClass="text-secondary" wrapText="true"/>
+                                </VBox>
+                                <VBox styleClass="payment-info-card" spacing="5" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT" spacing="6">
+                                        <Label text="Торговая точка" styleClass="metric-caption"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
+                                        <Button fx:id="openOnMapButton" text="На карте"
+                                                onAction="#handleOpenOnMap"
+                                                styleClass="open-on-map-button"/>
+                                    </HBox>
+                                    <Label fx:id="pointCodeLabel" text="—" styleClass="payment-info-value"/>
+                                    <Label fx:id="rentalPeriodLabel" text="—" styleClass="text-secondary" wrapText="true"/>
+                                </VBox>
+                            </HBox>
+                            <HBox spacing="12">
+                                <VBox styleClass="payment-info-card" spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Ставка в день" styleClass="metric-caption"/>
+                                    <Label fx:id="dailyRateLabel" text="—" styleClass="payment-info-value"/>
+                                </VBox>
+                                <VBox styleClass="payment-info-card" spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Всего по аренде" styleClass="metric-caption"/>
+                                    <Label fx:id="expectedTotalLabel" text="—" styleClass="payment-info-value"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Progress: paid vs total, with remaining -->
+                            <VBox styleClass="payment-progress-card" spacing="8">
+                                <HBox alignment="CENTER_LEFT" spacing="6">
+                                    <Label text="Прогресс оплаты" styleClass="metric-caption"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="paidPctLabel" text="0%" styleClass="payment-pct-label"/>
+                                </HBox>
+                                <ProgressBar fx:id="paymentProgress" progress="0"
+                                             maxWidth="Infinity" styleClass="payment-progress-bar"/>
+                                <HBox alignment="CENTER_LEFT" spacing="12">
+                                    <VBox spacing="2">
+                                        <Label text="Оплачено" styleClass="metric-caption"/>
+                                        <Label fx:id="paidTotalLabel" text="—" styleClass="payment-paid-value"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <VBox spacing="2" alignment="CENTER_RIGHT">
+                                        <Label text="Осталось всего" styleClass="metric-caption"/>
+                                        <Label fx:id="remainingTotalLabel" text="—" styleClass="payment-remaining-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+
+                            <!-- ===== "Платёж за период" — hero card ===== -->
+                            <VBox styleClass="payment-hero-card" spacing="12">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <VBox spacing="2">
+                                        <Label text="К оплате за период" styleClass="payment-hero-caption"/>
+                                        <Label fx:id="nextPeriodLabel" text="—" styleClass="payment-hero-period"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <VBox spacing="2" alignment="CENTER_RIGHT">
+                                        <Label text="Сумма" styleClass="payment-hero-caption"/>
+                                        <Label fx:id="currentDueLabel" text="0 ₽" styleClass="payment-hero-amount"/>
+                                    </VBox>
+                                </HBox>
+                                <Label fx:id="paymentHintLabel" text="—" styleClass="text-secondary" wrapText="true"/>
+
+                                <!-- Partial payment input -->
+                                <VBox spacing="8" styleClass="payment-input-row">
+                                    <Label text="Сумма платежа, ₽" styleClass="step-caption"/>
+                                    <TextField fx:id="payAmountField" promptText="вся сумма"
+                                               maxWidth="Infinity" styleClass="payment-amount-input"/>
+                                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                                        <Button text="Вся сумма" onAction="#handleFillFullAmount"
+                                                styleClass="btn-secondary, pay-full-button"/>
+                                        <Button fx:id="payButton" text="Оплатить"
+                                                onAction="#handlePay" styleClass="btn-primary, pay-primary-button"/>
+                                    </HBox>
+                                </VBox>
+                                <Label fx:id="actionStatusLabel" text="" styleClass="profile-status"/>
+                            </VBox>
+
+                            <!-- ===== History — inline, no nested scroll ===== -->
+                            <VBox spacing="9">
+                                <Label text="История платежей" styleClass="heading-3"/>
+                                <VBox fx:id="paymentHistoryBox" spacing="8"/>
+                            </VBox>
+                        </VBox>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </HBox>
+    </center>
+</BorderPane>
