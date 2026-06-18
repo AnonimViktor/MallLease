@@ -194,6 +194,13 @@ public class AuthController {
             valid = false;
         }
 
+        String phone = normalize(regPhoneField.getText());
+        if (!phone.isEmpty() && !isPhoneValid(phone)) {
+            markInvalid(regPhoneField, true);
+            showError(regGeneralError, "Телефон: введите номер в формате +7XXXXXXXXXX или 8XXXXXXXXXX");
+            valid = false;
+        }
+
         String password = regPasswordField.getText();
         String passwordRepeat = regPasswordRepeatField.getText();
         if (!password.equals(passwordRepeat)) {
@@ -211,6 +218,12 @@ public class AuthController {
         }
 
         return valid;
+    }
+
+    static boolean isPhoneValid(String phone) {
+        // Принимаем: +7XXXXXXXXXX, 7XXXXXXXXXX, 8XXXXXXXXXX (с пробелами, дефисами, скобками)
+        String digits = phone.replaceAll("[\\s\\-().+]", "");
+        return digits.matches("^[78]\\d{10}$");
     }
 
     private boolean require(TextField field, String error) {
@@ -232,11 +245,11 @@ public class AuthController {
             String company,
             String address,
             String bankDetails) {
-        login = normalize(login);
-        email = normalize(email);
-        phone = normalize(phone);
-        fullName = normalize(fullName);
-        company = normalize(company);
+        login    = normalize(login);
+        email    = normalize(email);
+        phone    = normalize(phone);
+        fullName = normalizeName(fullName);
+        company  = normalize(company);
         address = normalize(address);
         bankDetails = normalize(bankDetails);
 
@@ -277,7 +290,12 @@ public class AuthController {
     }
 
     private String normalize(String value) {
-        return value == null ? "" : value.trim();
+        return value == null ? "" : value.strip();
+    }
+
+    /** Схлопывает все внутренние пробельные символы в один пробел. */
+    private String normalizeName(String value) {
+        return value == null ? "" : value.strip().replaceAll("\\s+", " ");
     }
 
     private void playIntroAnimation() {
