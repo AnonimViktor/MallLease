@@ -89,7 +89,7 @@ public class ProfileController {
         }
 
         try {
-            currentUser.setFullName(normalize(fullNameField.getText()));
+            currentUser.setFullName(normalizeName(fullNameField.getText()));
             currentUser.setLogin(normalize(loginField.getText()));
             currentUser.setEmail(normalize(emailField.getText()));
             currentUser.setPhone(normalize(phoneField.getText()));
@@ -172,7 +172,7 @@ public class ProfileController {
 
     private boolean validateProfile() {
         boolean valid = true;
-        String fullName = normalize(fullNameField.getText());
+        String fullName = normalizeName(fullNameField.getText());
         String login = normalize(loginField.getText());
         String email = normalize(emailField.getText());
 
@@ -242,7 +242,11 @@ public class ProfileController {
     }
 
     private String normalize(String value) {
-        return value == null ? "" : value.trim();
+        return value == null ? "" : value.strip();
+    }
+
+    private String normalizeName(String value) {
+        return value == null ? "" : value.strip().replaceAll("\\s+", " ");
     }
 
     private String initials(String name) {

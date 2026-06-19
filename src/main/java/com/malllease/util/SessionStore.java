@@ -24,7 +24,6 @@ public final class SessionStore {
     private static final Path SESSION_FILE = SESSION_DIR.resolve("session.properties");
     private static final long MAX_AGE_DAYS = 30;
 
-    // Изменение этой константы инвалидирует все существующие сессии
     private static final String HMAC_SECRET = "MallLease-v1-session-integrity-key";
 
     private SessionStore() {}
@@ -68,7 +67,6 @@ public final class SessionStore {
 
             int userId = Integer.parseInt(userIdRaw.trim());
 
-            // Проверяем подпись — защита от ручного редактирования файла
             String expected = sign(userId + ":" + userLogin + ":" + savedAt);
             if (!expected.equals(sig)) {
                 log.warn("Session file signature mismatch — rejecting saved session");

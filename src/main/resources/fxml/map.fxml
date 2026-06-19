@@ -21,7 +21,6 @@
             fx:controller="com.malllease.controller.MapController"
             styleClass="map-screen, map-overlay-root">
 
-    <!-- ===== Base layer: full-area map ===== -->
     <StackPane fx:id="mapStage" styleClass="map-stage"
                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
@@ -30,7 +29,7 @@
         </Pane>
     </StackPane>
 
-    <!-- ===== Top-left: center + floor dropdown ===== -->
+    
     <HBox styleClass="floating-card, map-top-bar" spacing="10" alignment="CENTER_LEFT"
           pickOnBounds="false"
           AnchorPane.topAnchor="18" AnchorPane.leftAnchor="20">
@@ -42,7 +41,6 @@
                   styleClass="map-floor-combo" promptText="Этаж"/>
     </HBox>
 
-    <!-- ===== Top-center: search bar (only shows matches when typing) ===== -->
     <HBox fx:id="searchBar" styleClass="floating-card, search-bar" spacing="0" alignment="CENTER_LEFT"
           pickOnBounds="false" prefWidth="460" maxWidth="460"
           AnchorPane.topAnchor="18">
@@ -53,7 +51,6 @@
                    styleClass="search-input-flat" HBox.hgrow="ALWAYS"/>
     </HBox>
 
-    <!-- ===== Top-center: results dropdown (only when query non-empty AND has results) ===== -->
     <VBox fx:id="searchResultsCard" styleClass="floating-card, search-results-card"
           visible="false" managed="false"
           pickOnBounds="false" prefWidth="460" maxWidth="460"
@@ -66,7 +63,6 @@
         </ScrollPane>
     </VBox>
 
-    <!-- ===== No-map list page: shown when the floor has no drawable map ===== -->
     <VBox fx:id="noMapPanel" styleClass="floating-card, no-map-page" spacing="14"
           visible="false" managed="false"
           AnchorPane.topAnchor="90" AnchorPane.leftAnchor="360"
@@ -90,7 +86,6 @@
         </ScrollPane>
     </VBox>
 
-    <!-- ===== Left: filters card ===== -->
     <VBox fx:id="leftPanel" spacing="14" pickOnBounds="false" prefWidth="320" maxWidth="320"
           AnchorPane.topAnchor="90" AnchorPane.leftAnchor="20">
 
@@ -132,7 +127,6 @@
         </VBox>
     </VBox>
 
-    <!-- ===== Right column: inspector (top level) + (when fallback) point list ===== -->
     <VBox fx:id="rightColumn" spacing="14" pickOnBounds="false" prefWidth="360" maxWidth="360"
           AnchorPane.topAnchor="18" AnchorPane.rightAnchor="22" AnchorPane.bottomAnchor="100">
 
@@ -183,6 +177,21 @@
                     <Label fx:id="periodPriceLabel" text="—" styleClass="period-price"/>
                 </VBox>
 
+                <VBox fx:id="existingShowingBox" styleClass="existing-showing-card" spacing="8"
+                      visible="false" managed="false">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Показ уже запрошен" styleClass="period-caption"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="existingShowingStatusBadge" text="" styleClass="showing-status-requested"/>
+                    </HBox>
+                    <HBox styleClass="inspector-row">
+                        <Label text="Дата и время" styleClass="inspector-label"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="existingShowingDateLabel" text="—" styleClass="inspector-value"/>
+                    </HBox>
+                    <Label fx:id="existingShowingCommentLabel" text="" styleClass="slot-hint" wrapText="true"/>
+                </VBox>
+
                 <VBox fx:id="showingSchedulerBox" styleClass="showing-slot-card" spacing="9"
                       visible="false" managed="false">
                     <Label text="Выберите свободный слот показа" styleClass="period-caption"/>
@@ -195,12 +204,13 @@
 
                 <Button fx:id="requestShowingButton" text="Запросить показ"
                         styleClass="btn-primary" maxWidth="Infinity" onAction="#handleRequestShowing"/>
+                <Label fx:id="showingFeedbackLabel" text="" styleClass="showing-feedback-label"
+                       wrapText="true" visible="false" managed="false"/>
             </VBox>
         </VBox>
 
     </VBox>
 
-    <!-- ===== Bottom-center: zoom + legend bar ===== -->
     <HBox fx:id="bottomBar" styleClass="floating-card, map-bottom-bar" spacing="14" alignment="CENTER"
           pickOnBounds="false"
           AnchorPane.bottomAnchor="20">
@@ -234,6 +244,10 @@
         <HBox spacing="6" alignment="CENTER_LEFT">
             <Region styleClass="legend-dot, legend-dot-self"/>
             <Label text="Ваша" styleClass="legend-label"/>
+        </HBox>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Region styleClass="legend-dot, legend-dot-expiring"/>
+            <Label text="Истекает" styleClass="legend-label"/>
         </HBox>
     </HBox>
 </AnchorPane>

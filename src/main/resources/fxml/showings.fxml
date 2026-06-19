@@ -75,7 +75,7 @@
                         HBox.hgrow="ALWAYS">
                 <content>
             <VBox fx:id="detailPanel" spacing="18" styleClass="showing-detail-panel">
-                <!-- ===== Header: title + read-only status pill ===== -->
+                
                 <HBox alignment="CENTER_LEFT" spacing="10" styleClass="showing-detail-header">
                     <VBox spacing="2">
                         <Label text="Карточка показа" styleClass="inspector-title"/>
@@ -92,7 +92,7 @@
 
                 <VBox fx:id="detailContentBox" spacing="14" visible="false" managed="false">
 
-                    <!-- ===== Step 1 — Клиент и точка (read-only summary) ===== -->
+                    
                     <VBox styleClass="showing-step" spacing="10">
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Label text="1" styleClass="step-number"/>
@@ -112,7 +112,7 @@
                         </HBox>
                     </VBox>
 
-                    <!-- ===== Step 2 — Когда показываем ===== -->
+                    
                     <VBox styleClass="showing-step" spacing="10">
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Label text="2" styleClass="step-number"/>
@@ -132,7 +132,7 @@
                         </HBox>
                     </VBox>
 
-                    <!-- ===== Step 3 — Итог встречи ===== -->
+                    
                     <VBox styleClass="showing-step" spacing="10">
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Label text="3" styleClass="step-number"/>
@@ -149,7 +149,7 @@
                         </VBox>
                     </VBox>
 
-                    <!-- ===== Step 4 — Договор аренды ===== -->
+                    
                     <VBox styleClass="showing-step, showing-step-contract" spacing="10">
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Label text="4" styleClass="step-number"/>
@@ -181,7 +181,7 @@
                         </FlowPane>
                     </VBox>
 
-                    <!-- ===== Footer: single save action ===== -->
+                    
                     <HBox spacing="10" alignment="CENTER_LEFT" styleClass="showing-footer">
                         <Label fx:id="actionStatusLabel" text="" styleClass="profile-status"/>
                         <Region HBox.hgrow="ALWAYS"/>

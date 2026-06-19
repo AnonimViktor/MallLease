@@ -78,11 +78,13 @@ public class MapController {
     private static final Color COLOR_UNAVAILABLE = Color.web("#F5C451");
     private static final Color COLOR_SELECTED = Color.web("#3B82F6");
     private static final Color COLOR_SELF = Color.web("#8B5CF6");
+    private static final Color COLOR_SELF_EXPIRING = Color.web("#D97706");
     private static final Color COLOR_FREE_FILL = Color.web("#CFF4DA");
     private static final Color COLOR_OCCUPIED_FILL = Color.web("#FFD0D7");
     private static final Color COLOR_UNAVAILABLE_FILL = Color.web("#FEF3C7");
     private static final Color COLOR_SELECTED_FILL = Color.web("#DCE8FF");
     private static final Color COLOR_SELF_FILL = Color.web("#EDE3FF");
+    private static final Color COLOR_SELF_EXPIRING_FILL = Color.web("#FEF3C7");
     private static final Color COLOR_HOVER_OVERLAY = Color.rgb(37, 99, 235, 0.12);
     private static final Color COLOR_FILTERED_FILL = Color.web("#EEF2F7");
     private static final Color COLOR_FILTERED_BORDER = Color.web("#CBD5E1");
@@ -142,12 +144,17 @@ public class MapController {
     @FXML private Label pointStatusLabel;
     @FXML private Label pointAcLabel;
     @FXML private Label periodPriceLabel;
+    @FXML private VBox existingShowingBox;
+    @FXML private Label existingShowingStatusBadge;
+    @FXML private Label existingShowingDateLabel;
+    @FXML private Label existingShowingCommentLabel;
     @FXML private VBox showingSchedulerBox;
     @FXML private DatePicker showingDatePicker;
     @FXML private ComboBox<LocalTime> showingSlotBox;
     @FXML private Label showingSlotHintLabel;
     @FXML private Label zoomLabel;
     @FXML private Button requestShowingButton;
+    @FXML private Label showingFeedbackLabel;
 
     private final ShoppingCenterDao centerDao = new ShoppingCenterDao();
     private final TradePointDao tradePointDao = new TradePointDao();
@@ -158,6 +165,7 @@ public class MapController {
 
     private User currentUser;
     private Integer currentClientId;
+    private com.malllease.model.ShowingRequestView clientPendingShowing;
     private List<TradePoint> currentPoints;
     private Map<String, TradePoint> pointsByCode = new HashMap<>();
     private Map<Integer, Boolean> filterMatchesByPointId = new HashMap<>();
@@ -393,6 +401,19 @@ public class MapController {
         ShoppingCenter center = centerComboBox == null ? null : centerComboBox.getValue();
         java.time.LocalDate from = availFromPicker == null ? null : availFromPicker.getValue();
         java.time.LocalDate to   = availToPicker   == null ? null : availToPicker.getValue();
+
+        if (currentClientId != null && center != null) {
+            java.time.LocalDate today = java.time.LocalDate.now();
+            try {
+                for (var a : tradePointDao.findAvailability(
+                        center.getShoppingCenterId(), currentFloor, today, today, currentClientId)) {
+                    if (a.getStatus() == com.malllease.model.TradePointAvailability.Status.OCCUPIED_BY_SELF) {
+                        availabilityByPointId.put(a.getTradePointId(), a);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
 
         if (center == null || from == null || to == null) {
             if (availabilityHintLabel != null) {
@@ -1001,7 +1022,15 @@ public class MapController {
             } else if (avail != null) {
                 switch (avail.getStatus()) {
                     case FREE -> { fillColor = COLOR_FREE_FILL; borderColor = COLOR_FREE; }
-                    case OCCUPIED_BY_SELF -> { fillColor = COLOR_SELF_FILL; borderColor = COLOR_SELF; }
+                    case OCCUPIED_BY_SELF -> {
+                        if (isExpiringSoon(avail)) {
+                            fillColor = COLOR_SELF_EXPIRING_FILL;
+                            borderColor = COLOR_SELF_EXPIRING;
+                        } else {
+                            fillColor = COLOR_SELF_FILL;
+                            borderColor = COLOR_SELF;
+                        }
+                    }
                     case OCCUPIED_BY_OTHER -> { fillColor = COLOR_OCCUPIED_FILL; borderColor = COLOR_OCCUPIED; }
                     default -> { fillColor = COLOR_UNAVAILABLE_FILL; borderColor = COLOR_UNAVAILABLE; }
                 }
@@ -1069,6 +1098,16 @@ public class MapController {
             gc.setFill(filteredOut && !tp.equals(selectedPoint) ? COLOR_FILTERED_TEXT : Color.web("#475569"));
             gc.setFont(Font.font("System", FontWeight.NORMAL, 13));
             gc.fillText(formatCurrency(tp.getCurrentDailyRate()) + " ₽", room.labelX, room.labelY + 20);
+
+            if (!filteredOut && avail != null
+                    && avail.getStatus() == com.malllease.model.TradePointAvailability.Status.OCCUPIED_BY_SELF
+                    && isExpiringSoon(avail)) {
+                long daysLeft = java.time.temporal.ChronoUnit.DAYS.between(
+                        java.time.LocalDate.now(), avail.getOccupiedTo());
+                gc.setFill(COLOR_SELF_EXPIRING);
+                gc.setFont(Font.font("System", FontWeight.BOLD, 12));
+                gc.fillText("! " + daysLeft + " дн.", room.labelX, room.labelY + 36);
+            }
         }
     }
 
@@ -1407,12 +1446,10 @@ public class MapController {
                 metaItem("Кондиционер", point.isHasAirConditioner() ? "Да" : "Нет")
         );
 
-        Button openBtn = new Button("Открыть карточку →");
-        openBtn.getStyleClass().add("point-info-open-button");
-        openBtn.setMaxWidth(Double.MAX_VALUE);
-        openBtn.setOnAction(e -> selectPoint(point, false));
+        card.setOnMouseClicked(e -> selectPoint(point, false));
+        card.getStyleClass().add("point-info-block-clickable");
 
-        card.getChildren().addAll(header, meta, openBtn);
+        card.getChildren().addAll(header, meta);
         return card;
     }
 
@@ -1630,9 +1667,18 @@ public class MapController {
         String statusClass;
         if (avail != null && avail.getStatus() == com.malllease.model.TradePointAvailability.Status.OCCUPIED_BY_SELF) {
             statusText = "Ваша аренда";
-            statusClass = "status-self";
-            if (avail.getOccupiedFrom() != null && avail.getOccupiedTo() != null) {
-                statusText += " · до " + avail.getOccupiedTo();
+            if (avail.getOccupiedTo() != null) {
+                long daysLeft = java.time.temporal.ChronoUnit.DAYS.between(
+                        java.time.LocalDate.now(), avail.getOccupiedTo());
+                if (isExpiringSoon(avail)) {
+                    statusText = "Ваша аренда · истекает через " + daysLeft + " дн.";
+                    statusClass = "status-expiring";
+                } else {
+                    statusText += " · до " + avail.getOccupiedTo();
+                    statusClass = "status-self";
+                }
+            } else {
+                statusClass = "status-self";
             }
         } else if (avail != null && avail.getStatus() == com.malllease.model.TradePointAvailability.Status.OCCUPIED_BY_OTHER) {
             statusText = "Занята в выбранный период";
@@ -1642,28 +1688,96 @@ public class MapController {
             statusClass = "status-" + point.getStatus();
         }
         pointStatusLabel.setText(statusText);
-        pointStatusLabel.getStyleClass().removeAll("status-free", "status-occupied", "status-unavailable", "status-self");
+        pointStatusLabel.getStyleClass().removeAll("status-free", "status-occupied", "status-unavailable", "status-self", "status-expiring");
         pointStatusLabel.getStyleClass().add(statusClass);
 
         inspectorEmptyLabel.setVisible(false);
         inspectorEmptyLabel.setManaged(false);
         pointDetailsBox.setVisible(true);
         pointDetailsBox.setManaged(true);
+
+        loadClientPendingShowing(point);
+
         boolean canRequestShowing = canCurrentUserRequestShowing(point);
         setSchedulerVisible(canRequestShowing);
+        setExistingShowingVisible(clientPendingShowing != null && isClientRole());
         if (canRequestShowing) {
             refreshShowingSlots();
         }
         requestShowingButton.setDisable(!canRequestShowing);
+        if (clientPendingShowing != null && isClientRole()) {
+            requestShowingButton.setText("Показ уже запрошен");
+        } else {
+            requestShowingButton.setText("Запросить показ");
+        }
         fadeInInspector();
+    }
+
+    private boolean isExpiringSoon(com.malllease.model.TradePointAvailability avail) {
+        return avail != null && avail.getOccupiedTo() != null
+                && avail.getOccupiedTo().isBefore(java.time.LocalDate.now().plusDays(31));
+    }
+
+    private boolean isClientRole() {
+        return currentUser != null && currentUser.getRole() != null
+                && "client".equals(currentUser.getRole().getCode());
+    }
+
+    private void loadClientPendingShowing(TradePoint point) {
+        clientPendingShowing = null;
+        if (currentClientId == null || point == null) return;
+        try {
+            clientPendingShowing = showingDao
+                    .findPendingForClientAndPoint(currentClientId, point.getTradePointId())
+                    .orElse(null);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void setExistingShowingVisible(boolean visible) {
+        if (existingShowingBox == null) return;
+        existingShowingBox.setVisible(visible);
+        existingShowingBox.setManaged(visible);
+        if (visible && clientPendingShowing != null) {
+            java.time.format.DateTimeFormatter fmt =
+                    java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+            existingShowingDateLabel.setText(clientPendingShowing.getShownAt().format(fmt));
+            existingShowingStatusBadge.setText(showingResultLabel(clientPendingShowing.getResult()));
+            String css = showingResultCss(clientPendingShowing.getResult());
+            existingShowingStatusBadge.getStyleClass().removeAll(
+                    "showing-status-requested", "showing-status-interested",
+                    "showing-status-refused", "showing-status-contract-signed");
+            existingShowingStatusBadge.getStyleClass().add(css);
+            String comment = clientPendingShowing.getComment();
+            existingShowingCommentLabel.setText(comment == null || comment.isBlank() ? "" : comment);
+            existingShowingCommentLabel.setVisible(comment != null && !comment.isBlank());
+            existingShowingCommentLabel.setManaged(comment != null && !comment.isBlank());
+        }
+    }
+
+    private String showingResultLabel(String result) {
+        return switch (result == null ? "requested" : result) {
+            case "interested" -> "Интерес есть";
+            case "refused" -> "Отказ";
+            case "contract_signed" -> "Договор подписан";
+            default -> "Запрошен";
+        };
+    }
+
+    private String showingResultCss(String result) {
+        return switch (result == null ? "requested" : result) {
+            case "interested" -> "showing-status-interested";
+            case "refused" -> "showing-status-refused";
+            case "contract_signed" -> "showing-status-contract-signed";
+            default -> "showing-status-requested";
+        };
     }
 
     private boolean canCurrentUserRequestShowing(TradePoint point) {
         return point != null
                 && "free".equals(point.getStatus())
-                && currentUser != null
-                && currentUser.getRole() != null
-                && "client".equals(currentUser.getRole().getCode());
+                && isClientRole()
+                && clientPendingShowing == null;
     }
 
     private void setSchedulerVisible(boolean visible) {
@@ -1762,44 +1876,42 @@ public class MapController {
         drawMap();
     }
 
+    private void setShowingFeedback(String text, boolean ok) {
+        if (showingFeedbackLabel == null) return;
+        showingFeedbackLabel.setText(text);
+        showingFeedbackLabel.getStyleClass().removeAll("showing-feedback-ok", "showing-feedback-error");
+        showingFeedbackLabel.getStyleClass().add(ok ? "showing-feedback-ok" : "showing-feedback-error");
+        boolean show = text != null && !text.isBlank();
+        showingFeedbackLabel.setVisible(show);
+        showingFeedbackLabel.setManaged(show);
+    }
+
     @FXML
     private void handleRequestShowing() {
-        if (selectedPoint == null) {
-            showAlert(Alert.AlertType.WARNING, "Выберите торговую точку на карте");
-            return;
-        }
-        if (!"free".equals(selectedPoint.getStatus())) {
-            showAlert(Alert.AlertType.WARNING, "Показ можно запросить только для свободной точки");
-            return;
-        }
-        if (currentUser == null || currentUser.getRole() == null || !"client".equals(currentUser.getRole().getCode())) {
-            showAlert(Alert.AlertType.INFORMATION, "Запрос показа создается из клиентской учетной записи");
-            return;
-        }
         if (showingDatePicker == null || showingSlotBox == null
                 || showingDatePicker.getValue() == null
                 || showingSlotBox.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Выберите свободную дату и время показа");
+            setShowingSlotHint("Выберите свободную дату и время показа");
             return;
         }
 
         try {
             Optional<Client> clientOpt = clientDao.findByUserId(currentUser.getUserId());
             if (clientOpt.isEmpty()) {
-                showAlert(Alert.AlertType.ERROR, "Для пользователя не найден профиль клиента");
+                setShowingFeedback("Профиль клиента не найден. Обратитесь к администратору.", false);
                 return;
             }
 
             Optional<User> managerOpt = findShowingManager();
             if (managerOpt.isEmpty()) {
-                showAlert(Alert.AlertType.ERROR, "В системе нет менеджера для обработки показа");
+                setShowingFeedback("В системе нет менеджера для обработки показа.", false);
                 return;
             }
 
             LocalDateTime shownAt = LocalDateTime.of(showingDatePicker.getValue(), showingSlotBox.getValue());
             if (showingDao.isManagerSlotBusy(managerOpt.get().getUserId(), shownAt)) {
                 refreshShowingSlots();
-                showAlert(Alert.AlertType.WARNING, "Этот слот уже занят. Выберите другое время.");
+                setShowingSlotHint("Этот слот уже занят. Выберите другое время.");
                 return;
             }
 
@@ -1814,13 +1926,17 @@ public class MapController {
             int showingId = showingDao.create(showing);
             showingDao.addPoint(showingId, selectedPoint.getTradePointId());
 
-            refreshShowingSlots();
-            showAlert(Alert.AlertType.INFORMATION, "Запрос показа создан на "
-                    + showingDatePicker.getValue() + " "
-                    + showingSlotBox.getConverter().toString(showingSlotBox.getValue())
-                    + ". Менеджер увидит его в разделе «Показы».");
+            loadClientPendingShowing(selectedPoint);
+            setSchedulerVisible(false);
+            setExistingShowingVisible(true);
+            requestShowingButton.setDisable(true);
+            requestShowingButton.setText("Показ уже запрошен");
+            setShowingFeedback("Показ запрошен на "
+                    + showingDatePicker.getValue().format(java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                    + " в " + showingSlotBox.getConverter().toString(showingSlotBox.getValue())
+                    + ". Менеджер увидит его в разделе «Показы».", true);
         } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Не удалось создать запрос показа. Проверьте подключение к БД.");
+            setShowingFeedback("Не удалось создать запрос показа. Проверьте подключение к БД.", false);
         }
     }
 
@@ -1833,8 +1949,12 @@ public class MapController {
         pointDetailsBox.setVisible(false);
         pointDetailsBox.setManaged(false);
         setSchedulerVisible(false);
+        setExistingShowingVisible(false);
+        setShowingFeedback("", true);
+        clientPendingShowing = null;
         if (requestShowingButton != null) {
             requestShowingButton.setDisable(true);
+            requestShowingButton.setText("Запросить показ");
         }
         if (fallbackPlanActive) {
             setVisibleManaged(rightColumn, false);

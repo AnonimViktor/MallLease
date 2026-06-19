@@ -20,6 +20,7 @@ public class ContractPaymentView {
     private LocalDate nextPeriodTo;
     private BigDecimal amountDue;
     private int chargeId;
+    private boolean hasCharges;
 
     public int getContractId() { return contractId; }
     public void setContractId(int contractId) { this.contractId = contractId; }
@@ -68,6 +69,9 @@ public class ContractPaymentView {
 
     public int getChargeId() { return chargeId; }
     public void setChargeId(int chargeId) { this.chargeId = chargeId; }
+
+    public boolean hasCharges() { return hasCharges; }
+    public void setHasCharges(boolean hasCharges) { this.hasCharges = hasCharges; }
 
     public boolean isPayable() {
         return "active".equals(contractStatus)

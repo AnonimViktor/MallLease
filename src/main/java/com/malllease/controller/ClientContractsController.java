@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 
@@ -165,6 +167,13 @@ public class ClientContractsController {
         VBox right = new VBox(2);
         right.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
         right.getChildren().addAll(period, rate, paid);
+
+        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), r.dateTo);
+        if (daysLeft >= 0 && daysLeft <= 30) {
+            Label expiry = new Label("! До окончания аренды " + daysLeft + " дн.");
+            expiry.getStyleClass().add("rental-expiry-warning");
+            right.getChildren().add(expiry);
+        }
 
         row.getChildren().addAll(left, grow, right, buildMapButton(r.pointId));
         container.getChildren().add(row);

@@ -17,7 +17,7 @@
         </encoder>
     </appender>
 
-    <!-- Trim noisy library logs -->
+    
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="org.postgresql" level="WARN"/>
 

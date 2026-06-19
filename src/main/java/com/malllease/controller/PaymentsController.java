@@ -236,7 +236,7 @@ public class PaymentsController {
     private BigDecimal parsePartialAmount() {
         String raw = payAmountField == null ? "" : payAmountField.getText();
         if (raw == null || raw.isBlank()) {
-            return selectedRow.getAmountDue();
+            throw new IllegalArgumentException("Укажите сумму платежа или нажмите «Вся сумма»");
         }
         BigDecimal amount;
         try {
@@ -399,11 +399,15 @@ public class PaymentsController {
         paidPctLabel.setText(Math.round(pct * 100) + "%");
         paymentProgress.setProgress(pct);
 
-        nextPeriodLabel.setText(row.isPayable() ? formatPeriod(row.getNextPeriodFrom(), row.getNextPeriodTo()) : "Всё оплачено");
+        nextPeriodLabel.setText(row.isPayable() ? formatPeriod(row.getNextPeriodFrom(), row.getNextPeriodTo())
+                : row.hasCharges() ? "Всё оплачено" : "—");
         currentDueLabel.setText(formatMoney(row.getAmountDue()));
         if (isOverdue(row)) {
             paymentHintLabel.setText("⚠ Платёж за этот период просрочен — месяц уже закрыт. "
                     + "Внесите всю сумму или часть, остаток пересчитается.");
+        } else if (!row.hasCharges()) {
+            paymentHintLabel.setText("По этой аренде начисления не сгенерированы. "
+                    + "Обратитесь к администратору.");
         } else {
             paymentHintLabel.setText(row.isPayable()
                     ? "Это ближайший месяц к оплате. Можно внести всю сумму или часть — остаток пересчитается."
@@ -487,12 +491,14 @@ public class PaymentsController {
 
     private String statusBadgeText(ContractPaymentView row) {
         if (isOverdue(row)) return "Просрочено";
-        return row.isPayable() ? "К оплате" : "Оплачено";
+        if (row.isPayable()) return "К оплате";
+        return row.hasCharges() ? "Оплачено" : "Нет начислений";
     }
 
     private String statusBadgeClass(ContractPaymentView row) {
         if (isOverdue(row)) return "payment-status-overdue";
-        return row.isPayable() ? "payment-status-due" : "payment-status-paid";
+        if (row.isPayable()) return "payment-status-due";
+        return row.hasCharges() ? "payment-status-paid" : "payment-status-no-charges";
     }
 
     private BigDecimal expectedTotal(ContractPaymentView row) {

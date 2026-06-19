@@ -37,12 +37,12 @@
 
             <HBox spacing="10" styleClass="auth-proof-row">
                 <VBox styleClass="auth-proof-card" spacing="4" HBox.hgrow="ALWAYS">
-                    <Label text="2" styleClass="auth-proof-value"/>
+                    <Label text="4" styleClass="auth-proof-value"/>
                     <Label text="торговых центра" styleClass="auth-proof-label"/>
                 </VBox>
                 <VBox styleClass="auth-proof-card" spacing="4" HBox.hgrow="ALWAYS">
-                    <Label text="49" styleClass="auth-proof-value"/>
-                    <Label text="торговых точек" styleClass="auth-proof-label"/>
+                    <Label text="191" styleClass="auth-proof-value"/>
+                    <Label text="торговая точка" styleClass="auth-proof-label"/>
                 </VBox>
                 <VBox styleClass="auth-proof-card" spacing="4" HBox.hgrow="ALWAYS">
                     <Label text="BCNF" styleClass="auth-proof-value"/>
@@ -51,7 +51,7 @@
             </HBox>
         </VBox>
 
-        <StackPane styleClass="auth-form-zone" HBox.hgrow="ALWAYS">
+        <StackPane styleClass="auth-form-zone">
             <VBox fx:id="loginPane" styleClass="auth-card" spacing="18" maxWidth="520">
                 <VBox spacing="5">
                     <Label text="Вход" styleClass="auth-form-title"/>

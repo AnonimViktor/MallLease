@@ -13,7 +13,7 @@ public class TradePoint {
     private BigDecimal currentDailyRate;
     private boolean active = true;
     private String imageUrl;
-    /** Derived occupancy state ("free" / "occupied" / "unavailable"), computed by the DAO. */
+
     private String status;
 
     public TradePoint() {}

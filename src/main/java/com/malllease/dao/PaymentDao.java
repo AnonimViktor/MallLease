@@ -199,6 +199,7 @@ public class PaymentDao extends BaseDao<Payment> {
         if (rs.wasNull() || chargeId == 0) {
             return;
         }
+        view.setHasCharges(true);
         BigDecimal amountDue = rs.getBigDecimal("amount_due");
         BigDecimal chargePaid = rs.getBigDecimal("charge_paid");
         view.setPaidTotal(view.getPaidTotal().add(chargePaid));

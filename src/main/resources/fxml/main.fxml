@@ -15,11 +15,11 @@
             prefWidth="1440" prefHeight="900" stylesheets="@../css/styles.css"
             styleClass="app-shell">
 
-    <!-- Sidebar -->
+    
     <left>
         <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="248" minWidth="220" spacing="0">
 
-            <!-- Brand -->
+            
             <HBox fx:id="brandRow" styleClass="sidebar-brand" spacing="10" alignment="CENTER_LEFT">
                 <Label text="M" styleClass="brand-mark"/>
                 <VBox fx:id="brandLabels" spacing="1">
@@ -28,7 +28,7 @@
                 </VBox>
             </HBox>
 
-            <!-- Navigation -->
+            
             <ScrollPane fx:id="navScroll" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                         styleClass="sidebar-nav-scroll" VBox.vgrow="ALWAYS">
                 <content>
@@ -49,13 +49,13 @@
                 </content>
             </ScrollPane>
 
-            <!-- Toggle row at bottom (Notion-style) -->
+            
             <HBox fx:id="toggleRow" styleClass="sidebar-toggle-row" alignment="CENTER_RIGHT">
                 <Button fx:id="collapseToggle" styleClass="sidebar-collapse-button"
                         onAction="#handleToggleSidebar"/>
             </HBox>
 
-            <!-- User card -->
+            
             <VBox styleClass="sidebar-user-card" spacing="2">
                 <HBox fx:id="sidebarUserProfile" spacing="10" alignment="CENTER_LEFT"
                       styleClass="sidebar-user-profile" onMouseClicked="#handleNavProfile">
@@ -70,7 +70,7 @@
         </VBox>
     </left>
 
-    <!-- Main content area -->
+    
     <center>
         <VBox styleClass="workspace">
             <HBox fx:id="headerBar" styleClass="header" alignment="CENTER_LEFT" spacing="16">

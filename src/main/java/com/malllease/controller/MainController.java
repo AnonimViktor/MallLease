@@ -159,8 +159,8 @@ public class MainController {
         boolean isClient = "client".equals(roleCode);
         navClients.setVisible(!isClient);
         navClients.setManaged(!isClient);
-        navShowings.setVisible(!isClient);
-        navShowings.setManaged(!isClient);
+        navShowings.setVisible(true);
+        navShowings.setManaged(true);
     }
 
     @FXML
@@ -193,8 +193,15 @@ public class MainController {
     @FXML
     private void handleNavShowings() {
         setActiveNav(navShowings);
-        pageTitle.setText("Показы");
-        loadContent("/fxml/showings.fxml");
+        boolean isClient = currentUser != null && currentUser.getRole() != null
+                && "client".equals(currentUser.getRole().getCode());
+        if (isClient) {
+            pageTitle.setText("Мои показы");
+            loadContent("/fxml/client-showings.fxml");
+        } else {
+            pageTitle.setText("Показы");
+            loadContent("/fxml/showings.fxml");
+        }
     }
 
     @FXML
@@ -279,6 +286,8 @@ public class MainController {
                 paymentsCtrl.setMapNavigator(toMap);
             } else if (controller instanceof ProfileController profileCtrl) {
                 profileCtrl.initUser(currentUser, this::handleProfileUpdated);
+            } else if (controller instanceof ClientShowingsController clientShowingsCtrl) {
+                clientShowingsCtrl.initUser(currentUser);
             } else if (controller instanceof ClientContractsController contractsCtrl) {
                 contractsCtrl.setMapNavigator(toMap);
                 contractsCtrl.initUser(currentUser);

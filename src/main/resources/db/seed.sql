@@ -258,7 +258,9 @@ INSERT INTO contract (client_id, contract_no, signed_at, status, comment) VALUES
     ((SELECT client_id FROM client WHERE company_name = 'ООО «Северный кофе»'),
      'ML-2026-003', CURRENT_DATE, 'active', 'Демо-договор (Орбита Плаза)'),
     ((SELECT client_id FROM client WHERE company_name = 'ООО «Северный кофе»'),
-     'ML-2026-004', CURRENT_DATE - 95, 'active', 'Демо-договор с просрочкой (Галерея)');
+     'ML-2026-004', CURRENT_DATE - 95, 'active', 'Демо-договор с просрочкой (Галерея)'),
+    ((SELECT client_id FROM client WHERE company_name = 'ООО «Северный кофе»'),
+     'ML-2026-005', CURRENT_DATE - 150, 'active', 'Демо-договор истекает через ~15 дней (Галерея)');
 
 INSERT INTO contract_rental (contract_id, point_id, date_from, date_to, daily_rate_fixed, status)
 SELECT ct.contract_id, tp.trade_point_id, CURRENT_DATE, CURRENT_DATE + 180, tp.current_daily_rate, 'active'
@@ -279,6 +281,12 @@ SELECT ct.contract_id, tp.trade_point_id, CURRENT_DATE - 95, CURRENT_DATE + 95, 
 FROM contract ct
 JOIN trade_point tp ON tp.shopping_center_id = 1 AND tp.point_code = 'A-101'
 WHERE ct.contract_no = 'ML-2026-004';
+
+INSERT INTO contract_rental (contract_id, point_id, date_from, date_to, daily_rate_fixed, status)
+SELECT ct.contract_id, tp.trade_point_id, CURRENT_DATE - 150, CURRENT_DATE + 15, tp.current_daily_rate, 'active'
+FROM contract ct
+JOIN trade_point tp ON tp.shopping_center_id = 1 AND tp.point_code = 'A-111'
+WHERE ct.contract_no = 'ML-2026-005';
 
 INSERT INTO monthly_charges (contract_id, point_id, month, amount_due, status)
 SELECT cr.contract_id, cr.point_id, gs::date AS month,

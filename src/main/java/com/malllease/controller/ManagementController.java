@@ -567,7 +567,11 @@ public class ManagementController {
             return textArea.getText().trim();
         }
         if (control instanceof TextField textField) {
-            return textField.getText().trim();
+            String raw = textField.getText().strip();
+            if ("full_name".equals(field.column())) {
+                raw = raw.replaceAll("\\s+", " ");
+            }
+            return raw;
         }
         return "";
     }

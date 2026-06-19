@@ -221,7 +221,7 @@ public class AuthController {
     }
 
     static boolean isPhoneValid(String phone) {
-        // Принимаем: +7XXXXXXXXXX, 7XXXXXXXXXX, 8XXXXXXXXXX (с пробелами, дефисами, скобками)
+
         String digits = phone.replaceAll("[\\s\\-().+]", "");
         return digits.matches("^[78]\\d{10}$");
     }
@@ -293,7 +293,6 @@ public class AuthController {
         return value == null ? "" : value.strip();
     }
 
-    /** Схлопывает все внутренние пробельные символы в один пробел. */
     private String normalizeName(String value) {
         return value == null ? "" : value.strip().replaceAll("\\s+", " ");
     }

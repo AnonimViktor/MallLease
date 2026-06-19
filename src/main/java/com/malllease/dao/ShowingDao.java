@@ -81,6 +81,75 @@ public class ShowingDao extends BaseDao<Showing> {
         return queryList("SELECT * FROM showing WHERE client_id = ? ORDER BY shown_at DESC", clientId);
     }
 
+    public List<ShowingRequestView> findRequestViewsByClient(int clientId) {
+        String sql = """
+            SELECT s.showing_id, s.client_id, c.company_name,
+                   s.manager_user_id, u.full_name AS manager_name, s.shown_at,
+                   COALESCE(s.result, 'requested') AS result, s.comment,
+                   COALESCE(string_agg(tp.point_code, ', ' ORDER BY tp.point_code), '') AS point_codes,
+                   COALESCE(string_agg(sc.name || ' / этаж ' || tp.floor, ', ' ORDER BY sc.name, tp.floor, tp.point_code), '') AS point_locations
+            FROM showing s
+            JOIN client c ON c.client_id = s.client_id
+            JOIN users u ON u.user_id = s.manager_user_id
+            LEFT JOIN showing_point sp ON sp.showing_id = s.showing_id
+            LEFT JOIN trade_point tp ON tp.trade_point_id = sp.point_id
+            LEFT JOIN shopping_center sc ON sc.shopping_center_id = tp.shopping_center_id
+            WHERE s.client_id = ?
+            GROUP BY s.showing_id, s.client_id, c.company_name,
+                     s.manager_user_id, u.full_name, s.shown_at, s.result, s.comment
+            ORDER BY s.shown_at DESC, s.showing_id DESC
+            """;
+
+        List<ShowingRequestView> rows = new ArrayList<>();
+        try (var conn = borrowConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clientId);
+            try (var rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    rows.add(mapRequestView(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Client showing query failed", e);
+        }
+        return rows;
+    }
+
+    public Optional<ShowingRequestView> findPendingForClientAndPoint(int clientId, int pointId) {
+        String sql = """
+            SELECT s.showing_id, s.client_id, c.company_name,
+                   s.manager_user_id, u.full_name AS manager_name, s.shown_at,
+                   COALESCE(s.result, 'requested') AS result, s.comment,
+                   COALESCE(string_agg(tp2.point_code, ', ' ORDER BY tp2.point_code), '') AS point_codes,
+                   COALESCE(string_agg(sc2.name || ' / этаж ' || tp2.floor, ', ' ORDER BY sc2.name, tp2.floor, tp2.point_code), '') AS point_locations
+            FROM showing s
+            JOIN client c ON c.client_id = s.client_id
+            JOIN users u ON u.user_id = s.manager_user_id
+            JOIN showing_point spx ON spx.showing_id = s.showing_id AND spx.point_id = ?
+            LEFT JOIN showing_point sp ON sp.showing_id = s.showing_id
+            LEFT JOIN trade_point tp2 ON tp2.trade_point_id = sp.point_id
+            LEFT JOIN shopping_center sc2 ON sc2.shopping_center_id = tp2.shopping_center_id
+            WHERE s.client_id = ?
+              AND COALESCE(s.result, 'requested') NOT IN ('refused', 'contract_signed')
+            GROUP BY s.showing_id, s.client_id, c.company_name,
+                     s.manager_user_id, u.full_name, s.shown_at, s.result, s.comment
+            ORDER BY s.shown_at DESC
+            LIMIT 1
+            """;
+
+        try (var conn = borrowConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, pointId);
+            stmt.setInt(2, clientId);
+            try (var rs = stmt.executeQuery()) {
+                if (rs.next()) return Optional.of(mapRequestView(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Pending showing check failed", e);
+        }
+        return Optional.empty();
+    }
+
     public Optional<Showing> findById(int showingId) {
         return querySingle("SELECT * FROM showing WHERE showing_id = ?", showingId);
     }

@@ -91,7 +91,7 @@
 
                         <VBox fx:id="detailContentBox" spacing="14" visible="false" managed="false">
 
-                            <!-- Summary cards: contract, point, rate, paid-so-far -->
+                            
                             <HBox spacing="12">
                                 <VBox styleClass="payment-info-card" spacing="5" HBox.hgrow="ALWAYS">
                                     <Label text="Договор" styleClass="metric-caption"/>
@@ -121,7 +121,7 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- Progress: paid vs total, with remaining -->
+                            
                             <VBox styleClass="payment-progress-card" spacing="8">
                                 <HBox alignment="CENTER_LEFT" spacing="6">
                                     <Label text="Прогресс оплаты" styleClass="metric-caption"/>
@@ -143,7 +143,7 @@
                                 </HBox>
                             </VBox>
 
-                            <!-- ===== "Платёж за период" — hero card ===== -->
+                            
                             <VBox styleClass="payment-hero-card" spacing="12">
                                 <HBox alignment="CENTER_LEFT" spacing="10">
                                     <VBox spacing="2">
@@ -158,22 +158,23 @@
                                 </HBox>
                                 <Label fx:id="paymentHintLabel" text="—" styleClass="text-secondary" wrapText="true"/>
 
-                                <!-- Partial payment input -->
+                                
                                 <VBox spacing="8" styleClass="payment-input-row">
                                     <Label text="Сумма платежа, ₽" styleClass="step-caption"/>
                                     <TextField fx:id="payAmountField" promptText="вся сумма"
                                                maxWidth="Infinity" styleClass="payment-amount-input"/>
                                     <HBox spacing="10" alignment="CENTER_RIGHT">
+                                        <Label fx:id="actionStatusLabel" text="" styleClass="profile-status"
+                                               HBox.hgrow="ALWAYS" wrapText="true"/>
                                         <Button text="Вся сумма" onAction="#handleFillFullAmount"
-                                                styleClass="btn-secondary, pay-full-button"/>
+                                                styleClass="pay-full-button"/>
                                         <Button fx:id="payButton" text="Оплатить"
-                                                onAction="#handlePay" styleClass="btn-primary, pay-primary-button"/>
+                                                onAction="#handlePay" styleClass="pay-primary-button"/>
                                     </HBox>
                                 </VBox>
-                                <Label fx:id="actionStatusLabel" text="" styleClass="profile-status"/>
                             </VBox>
 
-                            <!-- ===== History — inline, no nested scroll ===== -->
+                            
                             <VBox spacing="9">
                                 <Label text="История платежей" styleClass="heading-3"/>
                                 <VBox fx:id="paymentHistoryBox" spacing="8"/>

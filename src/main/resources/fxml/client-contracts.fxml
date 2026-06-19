@@ -10,7 +10,7 @@
       fx:controller="com.malllease.controller.ClientContractsController"
       spacing="16" styleClass="client-contracts-screen">
 
-    <!-- Top summary strip -->
+    
     <HBox spacing="14" styleClass="client-contracts-summary">
         <VBox styleClass="summary-card" HBox.hgrow="ALWAYS" spacing="4">
             <Label text="Активных договоров" styleClass="metric-caption"/>
@@ -30,7 +30,7 @@
         </VBox>
     </HBox>
 
-    <!-- Scrolling list of contract cards -->
+    
     <ScrollPane fx:id="contractsScroll" fitToWidth="true" hbarPolicy="NEVER"
                 styleClass="client-contracts-scroll" VBox.vgrow="ALWAYS">
         <content>
